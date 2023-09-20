@@ -6,7 +6,11 @@ require("dotenv").config()
 
 
 const app = express()
-const port = 3000;
+let PORT = process.env.PORT;
+if (PORT == null || PORT == "") {
+  PORT = 5000;
+}
+ 
 
 
 app.use(express.urlencoded({extended: false}))
@@ -26,6 +30,6 @@ mongoose
 
 app.use("/user",userRoute)
 
-app.listen(port, ()=>{
-    console.log(`Server is running on ${port}`)
+app.listen(PORT, ()=>{
+    console.log(`Server is running on ${PORT}`)
 })
