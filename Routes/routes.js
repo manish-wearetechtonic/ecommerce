@@ -8,29 +8,29 @@ const { addUser, login} = require("../Controllers/user_controller");
 const { addProduct} = require("../Controllers/product_controller");
 
 
-router.post("/addUser", addUser)
+// router.post("/addUser", addUser)
 router.post("/addProduct", addProduct)
-router.post("/login", login)
+// router.post("/login", login)
  
 // router.post("/login",login)
 
-router.use(function (req, res, next) {
-    if (!req.headers["authorization"]) return next(createError.Unauthorized());
-    const authHeader = req.headers["authorization"];
-    const bearerToken = authHeader.split(" ");
-    const token = bearerToken[1];
+// router.use(function (req, res, next) {
+//     if (!req.headers["authorization"]) return next(createError.Unauthorized());
+//     const authHeader = req.headers["authorization"];
+//     const bearerToken = authHeader.split(" ");
+//     const token = bearerToken[1];
     
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-      if (err) {
-        const message =
-          err.name === "JsonWebTokenError" ? "Unauthorized" : err.message;
-        return next(createError.Unauthorized(message));
-      }
-      req.payload = payload;
-      res.locals.id = payload.id;
-      next();
-    });
-  }); 
+//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
+//       if (err) {
+//         const message =
+//           err.name === "JsonWebTokenError" ? "Unauthorized" : err.message;
+//         return next(createError.Unauthorized(message));
+//       }
+//       req.payload = payload;
+//       res.locals.id = payload.id;
+//       next();
+//     });
+//   }); 
   
 
 

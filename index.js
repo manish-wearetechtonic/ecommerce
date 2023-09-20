@@ -8,7 +8,7 @@ require("dotenv").config()
 const app = express()
 let PORT = process.env.PORT;
 if (PORT == null || PORT == "") {
-  PORT = 5000;
+  PORT = 3000;
 }
  
 
@@ -16,17 +16,17 @@ if (PORT == null || PORT == "") {
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
 
-mongoose
-  .connect(process.env.MONGO_DB_URL, {
-    useNewUrlParser: true,
-  }).then(() => {
-    console.log("mongodb connected.");
-  })
-  .catch((err) => console.log(err.message));
+// mongoose
+//   .connect(process.env.MONGO_DB_URL, {
+//     useNewUrlParser: true,
+//   }).then(() => {
+//     console.log("mongodb connected.");
+//   })
+//   .catch((err) => console.log(err.message));
 
-  app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/funny_message.html');
-  });
+//   app.get('/', function (req, res) {
+//     res.sendFile(__dirname + '/funny_message.html');
+//   });
 
 app.use("/user",userRoute)
 
