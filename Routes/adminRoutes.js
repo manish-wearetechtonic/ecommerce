@@ -4,11 +4,11 @@ const jwt = require("jsonwebtoken")
 const createError = require("http-errors");
 
 
-const { addUser, login} = require("../Controllers/user_controller");
-const {  addReview, getProducts} = require("../Controllers/product_controller");
+const { adminSignup, login} = require("../Controllers/admin_controller");
+const { addProduct, addReview, getProducts} = require("../Controllers/product_controller");
 
 
-router.post("/addUser", addUser)
+router.post("/signup", adminSignup)
 router.post("/login", login)
  
 
@@ -32,6 +32,8 @@ router.use(function (req, res, next) {
     });
   }); 
   
+
+  router.post("/addProduct", addProduct)
   router.post("/addReview", addReview)
   router.get("/getProducts", getProducts)
 module.exports = router;

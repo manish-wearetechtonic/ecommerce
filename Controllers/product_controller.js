@@ -7,7 +7,14 @@ const addProduct = async (req, res) =>{
     try {
              
         let { title,description,price ,category,brand,imageUrls,stockQuantity} = req.body;
-        
+         // Check if the user exists
+      const user = await User.findOne({ _id: res.locals.id });
+  
+      if (user.isAdmin) {
+        return res.status(404).json({
+          message: "You don't have right to add Product"
+        });
+      }
         if(title.length < 1){
             return res.status(409).json({
                 message: "Product title can not be empty"
@@ -26,7 +33,6 @@ const addProduct = async (req, res) =>{
             brand,
             imageUrls,
             stockQuantity,
-
         })
 
         return res.json({
@@ -39,7 +45,6 @@ const addProduct = async (req, res) =>{
         })
     }
 }
-
 
 
 // Write Review
