@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { categoryList } = require('../Common/utilis');
+// const { categoryList } = require('../Common/utilis');
 
 const productSchema = new mongoose.Schema({
   title: {
@@ -6,6 +8,7 @@ const productSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+
   description: {
     type: String,
     required: true,
@@ -18,7 +21,7 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Electronics', 'Clothing', 'Home', 'Books', 'Toys', 'Other'],
+    enum: categoryList,
   },
   brand: {
     type: String,
@@ -42,6 +45,7 @@ const productSchema = new mongoose.Schema({
         required: true,
         min: 1,
         max: 5,
+        default: 0
       },
       review: {
         type: String,
@@ -51,27 +55,7 @@ const productSchema = new mongoose.Schema({
         default: Date.now,
       },
     },
-  ],
-  reviews: [
-    {
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-      text: {
-        type: String,
-        required: true,
-      },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
-  seller: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
+  ]
   // Add more fields as needed for your specific application
 });
 
