@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 const createError = require("http-errors");
 
 
-const { addUser, login} = require("../Controllers/user_controller");
+const { addUser, login } = require("../Controllers/user_controller");
 const {  addReview, getProducts, editReview} = require("../Controllers/product_controller");
 
 
