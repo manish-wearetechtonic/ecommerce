@@ -9,8 +9,8 @@ const addProduct = async (req, res) =>{
         let { title,description,price ,category,brand,imageUrls,stockQuantity} = req.body;
          // Check if the user exists
       const user = await User.findOne({ _id: res.locals.id });
-  
-      if (user.isAdmin) {
+
+      if (user.isAdmin === false) {
         return res.status(404).json({
           message: "You don't have right to add Product"
         });
@@ -50,7 +50,7 @@ const addProduct = async (req, res) =>{
 // Write Review
 const addReview = async (req, res) => {
     try {
-      let { productId, userId, rating, review } = req.body;
+      let { productId, rating, review } = req.body;
   
       if (!productId) {
         return res.status(400).json({
@@ -58,14 +58,8 @@ const addReview = async (req, res) => {
         });
       }
   
-      if (!userId) {
-        return res.status(400).json({
-          message: "userId is required"
-        });
-      }
-  
       // Check if the user exists
-      const user = await User.findOne({ _id: userId });
+      const user = await User.findOne({ _id: res.locals.id  });
   
       if (!user) {
         return res.status(404).json({
@@ -85,7 +79,7 @@ const addReview = async (req, res) => {
         {
           $addToSet: {
             ratings: {
-              user: userId,
+              user: user.id,
               rating: rating,
               review: review,
             },
@@ -120,12 +114,54 @@ const getProducts = async (req, res) => {
             data: products
         })
     } catch (error) {
-        
+       return res.status(500).json({
+          message: "Internal Server Error"
+        });
     }
 }
+
+// Edit Review
+const editReview = async (req, res) => {
+  try {
+    let { productId, reviewId, review } = req.body;
+
+    const product = await Product.findOne({ _id: productId });
+
+    if (!product) {
+      return res.status(404).json({
+        error: "Product not found",
+        message: "The requested product does not exist in the system."
+      });
+    }
+
+ 
+    const foundReview = product.ratings.find((rating) => rating._id.toString() === reviewId);
+
+    if (!foundReview) {
+      return res.status(404).json({
+        error: "Review not found",
+        message: "The requested review does not exist for this product."
+      });
+    }
+
+    foundReview.review = review;
+    await product.save();
+
+    return res.status(200).json({
+      message: "Review updated successfully"
+    });
+  } catch (error) {
+    console.error("Error editing review:", error);
+    return res.status(500).json({
+      message: "Internal Server Error"
+    });
+  }
+};
+
 module.exports = {
     addProduct,
     addReview,
     getProducts,
+    editReview
 
 }

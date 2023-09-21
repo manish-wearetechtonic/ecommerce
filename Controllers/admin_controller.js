@@ -45,7 +45,7 @@ const login = async (req, res) => {
 
         const user = await User.findOne({ email });
 
-        if (!user) {
+        if (!user || user.isAdmin === false) {
             return res.status(409).json({ message: "User not exist" });
         }
 
