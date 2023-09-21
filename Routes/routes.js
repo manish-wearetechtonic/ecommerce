@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 const createError = require("http-errors");
 
 
-const { addUser, login } = require("../Controllers/user_controller");
+const { addUser, login, resetPassword} = require("../Controllers/user_controller");
 const {  addReview, getProducts, editReview} = require("../Controllers/product_controller");
 
 
@@ -35,4 +35,5 @@ router.use(function (req, res, next) {
   router.post("/addReview", addReview)
   router.get("/getProducts", getProducts)
   router.post("/editReview", editReview)
+  router.post("/resetPassowrd", resetPassword)
 module.exports = router;

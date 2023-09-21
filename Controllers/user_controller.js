@@ -101,7 +101,68 @@ const login = async (req, res) => {
     }
 };
 
+// Reset password
+const resetPassword = async(req, res) => {
+    try {
+        
+        let { oldPassword, newPassword,confirmPassword} = req.body;
+
+        if(!req.body){
+            return res.status(402).json({
+                status: 402,
+                message: "oldPassword,newPassword and confirmPassword is required"
+            })
+        }
+        if(newPassword.trim().length === 0 || confirmPassword.trim().length === 0){
+            return res.status(402).json({
+                status:402,
+                message: "New password and Confirm password can not be empty"
+            })
+        }
+        const user = await User.findOne({ _id: res.locals.id });
+
+        if(!user){
+            return res.status(404).json({
+                status:404,
+                message: "User not found"
+            })
+        }
+
+        const passwordMatch = await bcrypt.compare(oldPassword, user.password);
+
+        if(!passwordMatch){
+            return res.status(402).json({
+                status:402,
+                message: "Password not matched"
+            })
+        }
+
+        if(newPassword !== confirmPassword){
+            return res.status(402).json({
+                status: 402,
+                message: "New password and confirm password doesn't match"
+            })
+        }
+
+        const hashPassword = await bcrypt.hash(password, 12);
+
+        user.password = hashPassword;
+        await user.save()
+
+        return res.status(200).json({
+            status: 200,
+            message: "Password changed successfully"
+        })
+
+    } catch (error) {
+       return res.status(502).json({
+            status:502,
+            message:"Internal Server Error"
+        })
+    }
+}
 module.exports = {
     addUser,
-    login
+    login,
+    resetPassword
 }
