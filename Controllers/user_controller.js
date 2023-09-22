@@ -144,7 +144,7 @@ const resetPassword = async(req, res) => {
             })
         }
 
-        const hashPassword = await bcrypt.hash(password, 12);
+        const hashPassword = await bcrypt.hash(confirmPassword, 12);
 
         user.password = hashPassword;
         await user.save()
@@ -155,11 +155,27 @@ const resetPassword = async(req, res) => {
         })
 
     } catch (error) {
-       return res.status(502).json({
-            status:502,
-            message:"Internal Server Error"
-        })
-    }
+        if (error.name === 'ValidationError') {
+          // Handle validation error (e.g., invalid newPassword or confirmPassword)
+          return res.status(400).json({
+            status: 400,
+            message: error.message,
+          });
+        } else if (error.name === 'MongoError') {
+          // Handle MongoDB-related error
+          return res.status(500).json({
+            status: 500,
+            message: "MongoDB Error: " + error.message,
+          });
+        } else {
+          // Handle other unexpected errors
+          console.error("Unexpected Error:", error);
+          return res.status(500).json({
+            status: 500,
+            message: "Internal Server Error",
+          });
+        }
+      }
 }
 module.exports = {
     addUser,

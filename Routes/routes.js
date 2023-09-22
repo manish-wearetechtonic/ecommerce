@@ -35,5 +35,5 @@ router.use(function (req, res, next) {
   router.post("/addReview", addReview)
   router.get("/getProducts", getProducts)
   router.post("/editReview", editReview)
-  router.post("/resetPassowrd", resetPassword)
+  router.post("/resetPassword", resetPassword)
 module.exports = router;
