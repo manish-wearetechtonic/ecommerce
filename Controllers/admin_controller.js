@@ -100,20 +100,8 @@ const login = async (req, res) => {
     }
 };
 
-///Function for editProduct
-const editProduct = async (req, res) =>{
-    try {
-
-    } catch (error) {
-        return res.status(502).json({
-            status:502,
-            message: "Internal Server Error"
-        })
-    }
-}
 
 module.exports = {
     adminSignup,
-    login,
-    editProduct
+    login
 }

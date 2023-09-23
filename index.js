@@ -20,6 +20,9 @@ mongoose
   .connect(process.env.MONGO_DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    writeConcern: {
+      w: 'majority'
+    }
   }).then(() => {
     console.log("mongodb connected.");
   })

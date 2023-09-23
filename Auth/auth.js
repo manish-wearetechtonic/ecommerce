@@ -49,6 +49,7 @@ module.exports = {
       });
     });
   },
+
   signToken: (data) => {
     return new Promise((resolve, reject) => {
       const payload = data;
@@ -86,6 +87,7 @@ module.exports = {
 
 
   },
+  
   verifyRefreshToken: (refreshToken) => {
     return new Promise((resolve, reject) => {
       jwt.verify(

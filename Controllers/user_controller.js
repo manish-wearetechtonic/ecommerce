@@ -1,7 +1,7 @@
 const User = require("../Models/users.model");
 const bcrypt = require("bcryptjs");
 
-const {signAccessToken, signRefreshToken } = require("../Auth/auth");
+const {signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken  } = require("../Auth/auth");
 
 
 /// Function for adding User 
@@ -156,19 +156,16 @@ const resetPassword = async(req, res) => {
 
     } catch (error) {
         if (error.name === 'ValidationError') {
-          // Handle validation error (e.g., invalid newPassword or confirmPassword)
           return res.status(400).json({
             status: 400,
             message: error.message,
           });
         } else if (error.name === 'MongoError') {
-          // Handle MongoDB-related error
           return res.status(500).json({
             status: 500,
             message: "MongoDB Error: " + error.message,
           });
         } else {
-          // Handle other unexpected errors
           console.error("Unexpected Error:", error);
           return res.status(500).json({
             status: 500,
@@ -177,8 +174,49 @@ const resetPassword = async(req, res) => {
         }
       }
 }
+
+const refreshToken = async (req, res) =>{
+    try {
+        const { accessToken, refreshToken } = req.body;
+        console.log("kkibkjbkj");
+        const payload = await verifyAccessToken(accessToken);
+        
+        if (!payload) {
+          return res.status(401).json({ message: "Invalid access token" });
+        }
+    
+        const refreshedPayload = await verifyRefreshToken(refreshToken);
+    
+        if (!refreshedPayload) {
+          return res.status(401).json({ message: "Invalid refresh token" });
+        }
+    
+        const user = await User.findOneAndUpdate(
+          { _id: refreshedPayload.id },
+          {   $set: {
+            "tokens.$.refreshToken": refreshToken.token,
+        }, }
+        );
+    
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+    
+       
+        const newAccessToken = await signAccessToken(refreshedPayload);
+    
+        return res.status(200).json({ 
+            status: 200,
+            message: "Token refresh successfully",
+            accessToken: newAccessToken 
+        });
+      } catch (error) {
+        return res.status(500).json({ message: error.message });
+      }
+}
 module.exports = {
     addUser,
     login,
-    resetPassword
+    resetPassword,
+    refreshToken
 }
