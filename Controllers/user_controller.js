@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const {signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken  } = require("../Auth/auth");
 
-const sendEmail = require("./send_email");
+const sendEmail = require("../Services/send_email");
 
 
 const generateOtpEmail = (name, otp) => {
