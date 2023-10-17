@@ -4,12 +4,13 @@ const jwt = require("jsonwebtoken")
 const createError = require("http-errors");
 
 
-const { addUser, login, resetPassword,refreshToken} = require("../Controllers/user_controller");
+const { addUser, login, resetPassword,verifyOTP,refreshToken} = require("../Controllers/user_controller");
 const {  addReview, getProducts, editReview} = require("../Controllers/product_controller");
 
 
-router.post("/addUser", addUser)
+router.post("/register", addUser)
 router.post("/login", login)
+router.post("/verify",verifyOTP)
 
 
 // router.post("/login",login)

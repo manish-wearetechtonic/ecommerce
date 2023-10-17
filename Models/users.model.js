@@ -22,6 +22,13 @@ const User = new Schema(
       unique: true,
 
     },
+    otp: {
+      type: Number, 
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false, 
+    },
     password: {
       type: String,
       required: true,

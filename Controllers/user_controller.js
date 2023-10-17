@@ -1,56 +1,86 @@
 const User = require("../Models/users.model");
 const bcrypt = require("bcryptjs");
-
+const path = require("path");
+const fs = require("fs");
 const {signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken  } = require("../Auth/auth");
 
+const sendEmail = require("./send_email");
 
-/// Function for adding User 
+
+const generateOtpEmail = (name, otp) => {
+    const emailTemplatePath = path.join(__dirname, "../mailer.html");
+    const template = fs.readFileSync(emailTemplatePath, "utf-8");
+    
+    const formattedTemplate = template
+        .replace("[User's Name]", name)
+        .replace("[OTP]", otp);
+    
+    return formattedTemplate;
+};
 const addUser = async (req, res) => {
     try {
-        let {email, name, password, phone } = req.body;
-        const existingUser = await User.findOne({ email });
+        let { email, name, password, phone } = req.body;
 
-        if(existingUser){
-            return res.status(409).json({
-                message: `User with ${email} is already exists`
-            });
+      
+        // Check if user with the same email already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ message: "Email already exists" });
         }
 
+        // Generate OTP
+        const generatedOTP = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+
+       
+        // Hash the password
         const hashPassword = await bcrypt.hash(password, 12);
+
+        // Create the user document with OTP
         const createUser = await User.create({
             name,
             email,
             password: hashPassword,
-            phone
-        })
+            phone,
+            // image: req.file.path,
+            otp: generatedOTP, // Save the generated OTP
+        });
+
+        // Prepare the email content
+        const emailContent = {
+            to: email,
+            subject: "OTP for Email Verification",
+            html: generateOtpEmail(name, generatedOTP), // Use the generated OTP and user's name
+        };
+
+        // Send the OTP email
+        await sendEmail(emailContent);
 
         return res.json({
-            message: "Your account created successfully!",
-            _id:createUser._id
-        })
+            message: "User created successfully. An OTP has been sent to your email.",
+            _id: createUser._id, // Note the change from `create._id` to `createUser._id`
+        });
     } catch (error) {
-
         return res.json({
-            message: error.message
-        })
-
+            message: error.message,
+        });
     }
-}
+};
 
-/// Function for login
 const login = async (req, res) => {
     try {
         let { email, password } = req.body;
 
         const user = await User.findOne({ email });
 
-        console.log(`User try to login ${user}`);
-
-        if (!user || !user.isAdmin === false) {
+        if (!user) {
             return res.status(409).json({ message: "User not exist" });
         }
 
-         
+        // Check if user's email is verified
+        if (!user.isEmailVerified) {
+            return res.status(401).json({ message: "Email not verified. Please verify your email first." });
+        }
+
         const checkPassword = await bcrypt.compare(password, user.password);
 
         if (!checkPassword) {
@@ -100,7 +130,38 @@ const login = async (req, res) => {
         });
     }
 };
+// Function to verify OTP
+const verifyOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const user = await User.findOne({ email });
+        console.log(`User is ${user}`)
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found."
+            });
+        }
 
+        if (user.otp !== otp) {
+            return res.status(400).json({
+                message: "Invalid OTP."
+            });
+        }
+
+        // Mark email as verified
+        user.isEmailVerified = true;
+        await user.save();
+
+        return res.json({
+            message: "Email verified successfully."
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+};
 // Reset password
 const resetPassword = async(req, res) => {
     try {
@@ -218,5 +279,6 @@ module.exports = {
     addUser,
     login,
     resetPassword,
-    refreshToken
+    refreshToken,
+    verifyOTP
 }
