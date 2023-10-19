@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { categoryList } = require('../Common/utilis');
+const { categoryList, brandList } = require('../Common/utilis');
 // const { categoryList } = require('../Common/utilis');
 
 const productSchema = new mongoose.Schema({
@@ -18,14 +18,23 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
-  category: {
-    type: String,
-    required: true,
-    enum: categoryList,
+  productCategory: {
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'Category', // Reference to the Category model
+    },
+    name: String
   },
-  brand: {
-    type: String,
+  productBrand: {
+    brand: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'Brand', // Reference to the Brand model
+    },
+    name: String
   },
+
   imageUrls: {
     type: [String],
   },

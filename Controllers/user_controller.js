@@ -130,7 +130,7 @@ const login = async (req, res) => {
         });
     }
 };
-// Function to verify OTP
+
 const verifyOTP = async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -162,7 +162,7 @@ const verifyOTP = async (req, res) => {
         });
     }
 };
-// Reset password
+
 const resetPassword = async(req, res) => {
     try {
         

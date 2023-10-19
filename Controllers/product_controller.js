@@ -1,6 +1,9 @@
 const { categoryList } = require("../Common/utilis");
 const Product = require("../Models/product_model");
 const User = require("../Models/users.model");
+const Brand = require("../Models/brand_model");
+const Category = require("../Models/category_model");
+const mongoose = require('mongoose');
 
 
 function isFieldValidated(field) {
@@ -29,17 +32,55 @@ const addProduct = async (req, res) => {
         message: "Product title can not be empty"
       });
     }
-    if (!categoryList.includes(category)) {
-      return res.status(409).json({
-        message: `Invalid category!, Use from this ${categoryList}`
-      });
+
+    let isValidCategory;
+    let isValidBrand;
+
+    // Check if category is a valid ObjectId
+    if (mongoose.Types.ObjectId.isValid(category)) {
+      isValidCategory = await Category.findOne({ _id: category });
+    } else {
+      return res.status(401).json({
+        status: 401,
+        message: "Invalid categoryId!"
+      })
     }
+
+    // Check if brand is a valid ObjectId
+    if (mongoose.Types.ObjectId.isValid(brand)) {
+      isValidBrand = await Brand.findOne({ _id: brand });
+    } else {
+      return res.status(401).json({
+        status: 401,
+        message: "Invalid brandId!"
+      })
+    }
+
+    if (!isValidCategory) {
+      // Handle invalid category (create a new category or return an error)
+      // Example: Create a new category
+      isValidCategory = await Category.create({ name: category });
+    }
+
+    if (!isValidBrand) {
+      // Handle invalid brand (create a new brand or return an error)
+      // Example: Create a new brand
+      isValidBrand = await Brand.create({ name: brand });
+    }
+
     const addedProduct = await Product.create({
       title,
       description,
       price,
-      category,
-      brand,
+      productBrand: {
+        brand: isValidBrand._id,
+        name: isValidBrand.name,
+      },
+      productCategory: {
+        category: isValidCategory._id,
+        name: isValidCategory.name,
+      },
+
       imageUrls,
       stockQuantity,
     })
@@ -75,7 +116,13 @@ const addReview = async (req, res) => {
         message: "User not found"
       });
     }
-
+    const isProductExist = await Product.findOne({_id: productId});
+    if(!isProductExist){
+      return res.status(404).json({
+        status: 404,
+        message: "Product not found!"
+      })
+    }
     if (rating > 5) {
       return res.status(404).json({
         message: "Can not rate more than 5 starts"
@@ -238,9 +285,9 @@ const deleteProduct = async (req, res) => {
   try {
     let productId = req.params.productId;
 
-    var product = await Product.findOne({_id:productId});
+    var product = await Product.findOne({ _id: productId });
 
-    if(!product){
+    if (!product) {
       return res.status(404).json({
         status: 404,
         message: "Product not found"
@@ -268,12 +315,41 @@ const deleteProduct = async (req, res) => {
     })
   }
 }
+
+const searchProduct = async (req, res) => {
+  try {
+    const query = {};
+
+    // if(res.query.title){
+    //   query.title.toLowerCase() == req.query.title.toLowerCase();
+    // }
+
+    if (req.query.title) {
+      query.title = req.query.title;
+    }
+
+  
+
+    const products = await Product.find(query);
+
+    res.status(200).json({
+      status: true,
+      data: products
+    });
+  } catch (error) {
+    console.log(`Error is ${error}`)
+    return res.status(500).json({
+      message: "Internal Server Error"
+    })
+  }
+}
 module.exports = {
   addProduct,
   addReview,
   getProducts,
   editReview,
   editProduct,
-  deleteProduct
+  deleteProduct,
+  searchProduct
 
 }

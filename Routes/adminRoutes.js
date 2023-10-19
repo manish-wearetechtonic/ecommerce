@@ -6,6 +6,7 @@ const createError = require("http-errors");
 
 const { adminSignup, login} = require("../Controllers/admin_controller");
 const { addProduct, addReview, getProducts, editProduct,deleteProduct} = require("../Controllers/product_controller");
+const { addBrand, addCategory, getBrand, getCategory} = require("../Controllers/common_controller");
 
 
 router.post("/signup", adminSignup)
@@ -37,5 +38,9 @@ router.use(function (req, res, next) {
   router.delete("/deleteProduct/:productId",deleteProduct)
   router.put("/editProduct", editProduct)
   router.post("/addReview", addReview)
+  router.post("/addBrand", addBrand)
+  router.post("/addCategory", addCategory)
   router.get("/getProducts", getProducts)
+  router.get("/getBrand", getBrand)
+  router.get("/getCategory", getCategory)
 module.exports = router;

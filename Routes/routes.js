@@ -5,7 +5,7 @@ const createError = require("http-errors");
 
 
 const { addUser, login, resetPassword,verifyOTP,refreshToken} = require("../Controllers/user_controller");
-const {  addReview, getProducts, editReview,} = require("../Controllers/product_controller");
+const {  addReview, getProducts, editReview,searchProduct} = require("../Controllers/product_controller");
 const {  addToCart,getCart,removeFromCart} = require("../Controllers/cart_controller");
 
 
@@ -44,6 +44,7 @@ router.use(function (req, res, next) {
   router.post("/addReview", addReview)
   router.get("/getProducts", getProducts)
   router.post("/editReview", editReview)
+  router.get("/search", searchProduct)
 
 
   /// Cart Routes
