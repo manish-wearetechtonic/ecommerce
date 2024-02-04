@@ -8,7 +8,7 @@ const sendEmail = require("../Services/send_email");
 
 
 const generateOtpEmail = (name, otp) => {
-    const emailTemplatePath = path.join(__dirname, "../mailer.html");
+    const emailTemplatePath = path.join(__dirname, "../Templates/mailer.html");
     const template = fs.readFileSync(emailTemplatePath, "utf-8");
     
     const formattedTemplate = template
@@ -35,15 +35,7 @@ const addUser = async (req, res) => {
         // Hash the password
         const hashPassword = await bcrypt.hash(password, 12);
 
-        // Create the user document with OTP
-        const createUser = await User.create({
-            name,
-            email,
-            password: hashPassword,
-            phone,
-            // image: req.file.path,
-            otp: generatedOTP, // Save the generated OTP
-        });
+     
 
         // Prepare the email content
         const emailContent = {
@@ -51,6 +43,15 @@ const addUser = async (req, res) => {
             subject: "OTP for Email Verification",
             html: generateOtpEmail(name, generatedOTP), // Use the generated OTP and user's name
         };
+           // Create the user document with OTP
+           const createUser = await User.create({
+            name,
+            email,
+            password: hashPassword,
+            phone,
+            // image: req.file.path,
+            otp: generatedOTP, // Save the generated OTP
+        });
 
         // Send the OTP email
         await sendEmail(emailContent);
@@ -275,10 +276,27 @@ const refreshToken = async (req, res) =>{
         return res.status(500).json({ message: error.message });
       }
 }
+
+const userProfile = async (req, res) => {
+    try {
+        const user = await User.findOne({ _id: res.locals.id });
+        const { name, email, phone, isEmailVerified } = user;
+
+        return res.json({
+            message: "User profile retrieved successfully",
+            profile: { name, email, phone, isEmailVerified }
+        });
+    } catch (error) {
+      return res.status(500).json({
+        message: "Internal Server Error"
+      });
+    }
+  }
 module.exports = {
     addUser,
     login,
     resetPassword,
     refreshToken,
-    verifyOTP
+    verifyOTP,
+    userProfile
 }

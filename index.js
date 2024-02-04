@@ -29,7 +29,7 @@ mongoose
   .catch((err) => console.log(err.message));
 
   app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/funny_message.html');
+    res.sendFile(__dirname + '/Templates/funny_message.html');
   });
 
 app.use("/user",userRoute)
